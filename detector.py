@@ -4,6 +4,9 @@ import signal
 import subprocess
 import wiringpi2
 from time import time, sleep
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 # Some of these constatns are from
 # https://github.com/WiringPi/WiringPi/blob/master/wiringPi/wiringPi.h
@@ -118,6 +121,6 @@ while True:
     add_entry("BRIGHTNESS:%d" % brightness)
     notifiedBrightness = brightness
 
-  wiringpi2.pwmWrite(LED_PIN, brightness)
+  wiringpi2.pwmWrite(LED_PIN, 1024 - brightness) # PNP -> inverse
 
   sleep(1.0/FREQUENCY)
