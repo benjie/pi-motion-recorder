@@ -71,7 +71,7 @@ def stop_recording():
   print "Killed recording, ..."
   recording_process.wait()
   print "... done; generating thumbnail..."
-  subprocess.call("ffmpeg -i /capture/videos/" + formatted_date + ".mp4 -ss 10.0 -f image2 -vframes 1 /capture/videos/" + formatted_date + ".png", shell = True)
+  subprocess.call("ffmpeg -ss 10.0 -i /capture/videos/" + formatted_date + ".mp4 -f image2 -vframes 1 /capture/videos/" + formatted_date + ".png", shell = True)
   print "... done"
   recording = False
   add_entry("DONE:"+formatted_date);
