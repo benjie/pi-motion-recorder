@@ -5,6 +5,10 @@
   video {
     max-width: 100%;
   }
+  img {
+    width: 640px;
+    height: 360px;
+  }
   #sidebar {
     float: right;
     width: 20%;
@@ -48,16 +52,23 @@ function addLog(line) {
   logEl.insertBefore(li, logEl.firstChild);
 }
 
+function upgradeVideo(div, date) {
+  div.innerHTML = '<video autoplay poster="'+videoBase+date+'.png" controls width="640" height="360">'+
+    '<source src="'+videoBase+date+'.mp4" type="video/mp4">'+
+    '<p>Your browser does not support H.264/MP4.</p>'+
+  '</video>';
+}
+
 function addVideo(date) {
   if (addedVideos.indexOf(date) >= 0) {
     return;
   }
   addedVideos.push(date);
   var div = document.createElement("div");
-  div.innerHTML = '<video poster="'+videoBase+date+'.png" controls width="640" height="360">'+
-    '<source src="'+videoBase+date+'.mp4" type="video/mp4">'+
-    '<p>Your browser does not support H.264/MP4.</p>'+
-  '</video>';
+  div.onclick = function() {
+    upgradeVideo(div, date);
+  }
+  div.innerHTML = '<h3>'+date+'</h3><img src="'+videoBase+date+'.png" />';
   videosEl.insertBefore(div, videosEl.firstChild);
 }
 
