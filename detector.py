@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+import os
+import signal
+import subprocess
 import wiringpi2
 from time import time, sleep
 INPUT = 0
@@ -35,21 +39,67 @@ wiringpi2.pullUpDnControl(MOTION_PIN, PUD_DOWN)
 wiringpi2.pinMode(LED_PIN, PWM_OUTPUT)
 
 brightness = 0
+notifiedBrightness = 0
 motionDetected = 0
+notified = 0
+recording = False
+recording_process = None
+formatted_date = None
+
+def add_entry(string):
+  with open("/capture/list.txt", "a") as myfile:
+    myfile.write("%f:%s\n" % (time(), string))
+
+def start_recording():
+  global recording, recording_process, formatted_date
+  if recording:
+    return
+  recording = True
+  print "Starting recording..."
+  #recording_process = subprocess.Popen(['bash', './record.sh'])
+  formatted_date = subprocess.check_output("date +'%Y-%m-%d_%H-%M-%S'", shell = True).strip()
+  add_entry("RECORDING:"+formatted_date)
+  command = "raspivid -w 1280 -h 720 -fps 25 -t 86400000 -b 1100000 -o - | psips | ffmpeg -i - -an -c:v copy /capture/videos/" + formatted_date + ".mp4"
+  recording_process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
+
+def stop_recording():
+  global recording, recording_process, formatted_date
+  if not recording:
+    return
+  os.killpg(recording_process.pid, signal.SIGTERM)
+  add_entry("FINALISING:"+formatted_date);
+  print "Killed recording, ..."
+  recording_process.wait()
+  print "... done; generating thumbnail..."
+  subprocess.call("ffmpeg -i /capture/videos/" + formatted_date + ".mp4 -ss 10.0 -f image2 -vframes 1 /capture/videos/" + formatted_date + ".png", shell = True)
+  print "... done"
+  recording = False
+  add_entry("DONE:"+formatted_date);
 
 while True:
   if wiringpi2.digitalRead(MOTION_PIN):
     motionDetected = time()
+    if time() - notified > 5:
+      add_entry("MOTION")
+      notified = time()
 
   if time() - motionDetected < 5:
     brightness += STEP
+    if not recording:
+      start_recording()
   else:
     brightness -= STEP
 
   if brightness < BRIGHTNESS_MIN:
     brightness = BRIGHTNESS_MIN
+    if recording:
+      stop_recording()
   if brightness > BRIGHTNESS_MAX:
     brightness = BRIGHTNESS_MAX
+
+  if brightness != notifiedBrightness:
+    add_entry("BRIGHTNESS: %d" % brightness)
+    notifiedBrightness = brightness
 
   wiringpi2.pwmWrite(LED_PIN, brightness)
 

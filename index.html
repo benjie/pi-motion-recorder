@@ -1,0 +1,120 @@
+<html>
+<head>
+<title>Videos</title>
+<style>
+#sidebar {
+float: right;
+width: 20%;
+}
+#fetching {
+  width: 40px;
+  height: 40px;
+  border-radius: 40px;
+  background-color: #ccc;
+  -webkit-transition: background-color linear 2s;
+}
+#brightness {
+  width: 100%;
+  }
+#videos {
+overflow: hidden;
+}
+</style>
+
+<script>
+var videoBase = "/videos/"
+var processedTimestamps = [];
+var lineCount = 0;
+var videosEl = null;
+var logEl = null;
+var fetchingEl = null;
+var brightnessEl = null;
+
+function addLog(line) {
+  var li = document.createElement('li');
+  li.textContent = line;
+  logEl.insertBefore(li, logEl.firstChild);
+}
+
+function addVideo(date) {
+  var div = document.createElement("div");
+  div.innerHTML = '<video poster="'+videoBase+date+'.png" controls width="1280" height="720">'+
+    '<source src="'+videoBase+date+'.mp4" type="video/mp4">'+
+    '<p>Your browser does not support H.264/MP4.</p>'+
+  '</video>';
+  videosEl.insertBefore(div, videosEl.firstChild);
+}
+
+function gotList(text) {
+  text = text.replace(/(^\s+|\s+$)/g, "");
+  var lines = text.split("\n");
+  if (lineCount > 0) {
+    lines.splice(0, lineCount);
+  }
+  lineCount += lines.length;
+  for (var i = 0, l = lines.length; i < l; i++) {
+    var line = lines[i];
+    var tmp = line.split(/:/);
+    var timestamp = tmp[0];
+    if (processedTimestamps.indexOf(timestamp) != -1) {
+      continue;
+    }
+    processedTimestamps.push(timestamp);
+    var command = tmp[1];
+    var param = tmp[2]
+    if (command == "DONE") {
+      var video = param;
+      addVideo(video);
+      addLog("New video: "+video);
+    } else if (command == "BRIGHTNESS") {
+      var brightness = parseInt(param, 10);
+      brightnessEl.value = brightness;
+    } else {
+      addLog("Unknown: "+line);
+    }
+  }
+}
+
+function fetch() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "/list.txt", true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      fetchingEl.style.WebkitTransition = 'none';
+      fetchingEl.style.backgroundColor = 'lightgreen';
+      setTimeout(function() {
+        fetchingEl.style.WebkitTransition = '';
+        fetchingEl.style.backgroundColor = '';
+      }, 0);
+      if (xhr.status == 200) {
+        gotList(xhr.response);
+      }
+      setTimeout(fetch, 1000);
+    }
+  }
+  xhr.send(null);
+}
+
+function start() {
+  videosEl = document.getElementById('videos');
+  logEl = document.getElementById('log');
+  fetchingEl = document.getElementById('fetching');
+  brightnessEl = document.getElementById('brightness');
+  fetch();
+}
+
+</script>
+</head>
+<body onload="start()">
+  <div id="sidebar">
+    <div id="fetching">
+    </div>
+    <input type="range" id="brightness" min="0" max="1024">
+    <ul id="log">
+    </ul>
+    
+  </div>
+  <div id="videos">
+  </div>
+</body>
+</html>
