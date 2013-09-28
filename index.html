@@ -66,6 +66,7 @@ function addVideo(date) {
   addedVideos.push(date);
   var div = document.createElement("div");
   div.onclick = function() {
+    div.onclick = null;
     upgradeVideo(div, date);
   }
   div.innerHTML = '<h3>'+date+'</h3><img src="'+videoBase+date+'.png" />';
