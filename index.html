@@ -2,23 +2,35 @@
 <head>
 <title>Videos</title>
 <style>
-#sidebar {
-float: right;
-width: 20%;
-}
-#fetching {
-  width: 40px;
-  height: 40px;
-  border-radius: 40px;
-  background-color: #ccc;
-  -webkit-transition: background-color linear 2s;
-}
-#brightness {
-  width: 100%;
+  video {
+    max-width: 100%;
   }
-#videos {
-overflow: hidden;
-}
+  #sidebar {
+    float: right;
+    width: 20%;
+  }
+  #fetching {
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    background-color: #ccc;
+    -webkit-transition: background-color linear 1s;
+  }
+  #brightness {
+    width: 100%;
+  }
+  #videos {
+    overflow: hidden;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    margin: 0 0 0 10px;
+    padding: 5px 0;
+  }
 </style>
 
 <script>
@@ -42,7 +54,7 @@ function addVideo(date) {
   }
   addedVideos.push(date);
   var div = document.createElement("div");
-  div.innerHTML = '<video poster="'+videoBase+date+'.png" controls width="1280" height="720">'+
+  div.innerHTML = '<video poster="'+videoBase+date+'.png" controls width="640" height="360">'+
     '<source src="'+videoBase+date+'.mp4" type="video/mp4">'+
     '<p>Your browser does not support H.264/MP4.</p>'+
   '</video>';
@@ -69,6 +81,14 @@ function gotList(text) {
     } else if (command == "BRIGHTNESS") {
       var brightness = parseInt(param, 10);
       brightnessEl.value = brightness;
+    } else if (command == "BOOT") {
+      addLog("System started.");
+    } else if (command == "MOTION") {
+      addLog("Motion detected.");
+    } else if (command == "RECORDING") {
+      addLog("Started a new recording.");
+    } else if (command == "FINALISING") {
+      addLog("Generating thumbnail.");
     } else {
       addLog("Unknown: "+line);
     }
@@ -91,7 +111,7 @@ function fetch() {
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
       fetchingEl.style.WebkitTransition = 'none';
-      fetchingEl.style.backgroundColor = 'lightgreen';
+      fetchingEl.style.backgroundColor = 'green';
       setTimeout(function() {
         fetchingEl.style.WebkitTransition = '';
         fetchingEl.style.backgroundColor = '';
