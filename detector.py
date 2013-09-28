@@ -30,6 +30,8 @@ NO_MOTION_DURATION = 5
 # How many times per second should we read the GPIO?
 FREQUENCY = 20
 
+MAX_STATUSES = 50
+
 
 BRIGHTNESS_RANGE = BRIGHTNESS_MAX - BRIGHTNESS_MIN
 STEP = BRIGHTNESS_RANGE/FREQUENCY/FADE_DURATION
@@ -45,10 +47,20 @@ notified = 0
 recording = False
 recording_process = None
 formatted_date = None
+statuses = []
+
+def add_video(string):
+  with open("/capture/videos.txt", "a") as myfile:
+    myfile.write("%s\n" % (string))
 
 def add_entry(string):
-  with open("/capture/list.txt", "a") as myfile:
-    myfile.write("%f:%s\n" % (time(), string))
+  global statuses
+  status = "%f:%s" % (time(), string)
+  statuses.append(status)
+  if len(statuses) > MAX_STATUSES:
+    statuses = statuses[-MAX_STATUSES:]
+  with open("/capture/log.txt", "w") as myfile:
+    myfile.write("\n".join(statuses))
 
 def start_recording():
   global recording, recording_process, formatted_date
@@ -74,8 +86,10 @@ def stop_recording():
   subprocess.call("ffmpeg -ss 10.0 -i /capture/videos/" + formatted_date + ".mp4 -f image2 -vframes 1 /capture/videos/" + formatted_date + ".png", shell = True)
   print "... done"
   recording = False
-  add_entry("DONE:"+formatted_date);
+  add_entry("DONE:"+formatted_date)
+  add_video(formatted_date)
 
+add_entry("BOOT")
 while True:
   if wiringpi2.digitalRead(MOTION_PIN):
     motionDetected = time()
@@ -98,7 +112,7 @@ while True:
     brightness = BRIGHTNESS_MAX
 
   if brightness != notifiedBrightness:
-    add_entry("BRIGHTNESS: %d" % brightness)
+    add_entry("BRIGHTNESS:%d" % brightness)
     notifiedBrightness = brightness
 
   wiringpi2.pwmWrite(LED_PIN, brightness)

@@ -24,11 +24,11 @@ overflow: hidden;
 <script>
 var videoBase = "/videos/"
 var processedTimestamps = [];
-var lineCount = 0;
 var videosEl = null;
 var logEl = null;
 var fetchingEl = null;
 var brightnessEl = null;
+var addedVideos = [];
 
 function addLog(line) {
   var li = document.createElement('li');
@@ -37,6 +37,10 @@ function addLog(line) {
 }
 
 function addVideo(date) {
+  if (addedVideos.indexOf(date) >= 0) {
+    return;
+  }
+  addedVideos.push(date);
   var div = document.createElement("div");
   div.innerHTML = '<video poster="'+videoBase+date+'.png" controls width="1280" height="720">'+
     '<source src="'+videoBase+date+'.mp4" type="video/mp4">'+
@@ -48,10 +52,6 @@ function addVideo(date) {
 function gotList(text) {
   text = text.replace(/(^\s+|\s+$)/g, "");
   var lines = text.split("\n");
-  if (lineCount > 0) {
-    lines.splice(0, lineCount);
-  }
-  lineCount += lines.length;
   for (var i = 0, l = lines.length; i < l; i++) {
     var line = lines[i];
     var tmp = line.split(/:/);
@@ -75,9 +75,19 @@ function gotList(text) {
   }
 }
 
+function gotVideos(text) {
+  text = text.replace(/(^\s+|\s+$)/g, "");
+  var lines = text.split("\n");
+  for (var i = 0, l = lines.length; i < l; i++) {
+    var line = lines[i];
+    if (!line.length) continue;
+    addVideo(line);
+  }
+}
+
 function fetch() {
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", "/list.txt", true);
+  xhr.open("GET", "/log.txt", true);
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
       fetchingEl.style.WebkitTransition = 'none';
@@ -95,12 +105,28 @@ function fetch() {
   xhr.send(null);
 }
 
+function fetchVideos() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "/videos.txt", true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status == 200) {
+        gotVideos(xhr.response);
+        fetch();
+      } else {
+        setTimeout(fetchVideos, 1000);
+      }
+    }
+  }
+  xhr.send(null);
+}
+
 function start() {
   videosEl = document.getElementById('videos');
   logEl = document.getElementById('log');
   fetchingEl = document.getElementById('fetching');
   brightnessEl = document.getElementById('brightness');
-  fetch();
+  fetchVideos();
 }
 
 </script>
