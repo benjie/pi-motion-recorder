@@ -4,6 +4,9 @@ import signal
 import subprocess
 import wiringpi2
 from time import time, sleep
+
+# Some of these constatns are from
+# https://github.com/WiringPi/WiringPi/blob/master/wiringPi/wiringPi.h
 INPUT = 0
 OUTPUT = 1
 PWM_OUTPUT = 2

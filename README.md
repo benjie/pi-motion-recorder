@@ -8,7 +8,7 @@ Requirements
 
   * A raspberry pi
   * A raspberry pi camera + software
-  * wiringpi2 python
+  * [wiringpi2 python](https://github.com/Gadgetoid/WiringPi2-Python)
   * A recent ffmpeg build (I built this myself, possibly only required
     for HLS which I am not using in this project yet)
   * A PIR sensor (or a button, or other 3v3 logic signal) to trigger
@@ -57,3 +57,8 @@ give you much light.
 
 Instead we use the input to trigger a MOSFET that powers an LED array off
 of a separate 5V source.
+
+Notes
+-----
+
+[Raspivid documentation](http://www.raspberrypi.org/wp-content/uploads/2013/07/RaspiCam-Documentation.pdf)
