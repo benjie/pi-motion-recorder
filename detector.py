@@ -78,7 +78,7 @@ def start_recording():
   recording = True
   print("Starting recording...")
   #recording_process = subprocess.Popen(['bash', './record.sh'])
-  formatted_date = subprocess.check_output("date +'%Y-%m-%d_%H-%M-%S'", shell = True).strip()
+  formatted_date = subprocess.check_output("date +'%Y-%m-%d_%H-%M-%S'", shell = True).strip().decode('utf-8')
   add_entry("RECORDING:"+formatted_date)
   command = "raspivid -w 1280 -h 720 -fps 25 -t 86400000 -b 1100000 -o - | psips | ffmpeg -i - -an -c:v copy " + VIDEOS_DIR + "/" + formatted_date + ".mp4"
   recording_process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
@@ -124,6 +124,6 @@ while True:
     add_entry("BRIGHTNESS:%d" % brightness)
     notifiedBrightness = brightness
 
-  wiringpi2.pwmWrite(LED_PIN, 1024 - brightness) # PNP -> inverse
+  wiringpi2.pwmWrite(LED_PIN, round(1024 - brightness)) # PNP -> inverse
 
   sleep(1.0/FREQUENCY)
