@@ -58,6 +58,12 @@ give you much light.
 Instead we use the input to trigger a MOSFET that powers an LED array off
 of a separate 5V source.
 
+Here's the design I'm using (where I've replaced the LED and it's
+resistor with a 4.5V 72-LED array that I'm powering from an external 5V
+supply, thus the FET):
+
+![Lighting circuit](lighting.png)
+
 Notes
 -----
 
