@@ -1,0 +1,10 @@
+[Unit]
+Description=Motion detector
+
+[Service]
+Type=simple
+ExecStart=/home/pi/motiondetector/motiondetector.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
