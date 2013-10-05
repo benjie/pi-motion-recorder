@@ -8,7 +8,10 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
-# Some of these constatns are from
+WEB_DIR = dname + "/www"
+VIDEOS_DIR = "/capture"
+
+# Some of these constants are from
 # https://github.com/WiringPi/WiringPi/blob/master/wiringPi/wiringPi.h
 INPUT = 0
 OUTPUT = 1
@@ -56,7 +59,7 @@ formatted_date = None
 statuses = []
 
 def add_video(string):
-  with open("/capture/videos.txt", "a") as myfile:
+  with open(WEB_DIR + "/videos.txt", "a") as myfile:
     myfile.write("%s\n" % (string))
 
 def add_entry(string):
@@ -65,7 +68,7 @@ def add_entry(string):
   statuses.append(status)
   if len(statuses) > MAX_STATUSES:
     statuses = statuses[-MAX_STATUSES:]
-  with open("/capture/log.txt", "w") as myfile:
+  with open(WEB_DIR + "/log.txt", "w") as myfile:
     myfile.write("\n".join(statuses))
 
 def start_recording():
@@ -73,11 +76,11 @@ def start_recording():
   if recording:
     return
   recording = True
-  print "Starting recording..."
+  print("Starting recording...")
   #recording_process = subprocess.Popen(['bash', './record.sh'])
   formatted_date = subprocess.check_output("date +'%Y-%m-%d_%H-%M-%S'", shell = True).strip()
   add_entry("RECORDING:"+formatted_date)
-  command = "raspivid -w 1280 -h 720 -fps 25 -t 86400000 -b 1100000 -o - | psips | ffmpeg -i - -an -c:v copy /capture/videos/" + formatted_date + ".mp4"
+  command = "raspivid -w 1280 -h 720 -fps 25 -t 86400000 -b 1100000 -o - | psips | ffmpeg -i - -an -c:v copy " + VIDEOS_DIR + "/" + formatted_date + ".mp4"
   recording_process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
 
 def stop_recording():
@@ -86,11 +89,11 @@ def stop_recording():
     return
   os.killpg(recording_process.pid, signal.SIGTERM)
   add_entry("FINALISING:"+formatted_date);
-  print "Killed recording, ..."
+  print("Killed recording, ...")
   recording_process.wait()
-  print "... done; generating thumbnail..."
-  subprocess.call("ffmpeg -ss 10.0 -i /capture/videos/" + formatted_date + ".mp4 -f image2 -vframes 1 /capture/videos/" + formatted_date + ".png", shell = True)
-  print "... done"
+  print("... done; generating thumbnail...")
+  subprocess.call("ffmpeg -ss 10.0 -i " + VIDEOS_DIR + "/" + formatted_date + ".mp4 -f image2 -vframes 1 " + VIDEOS_DIR + "/" + formatted_date + ".png", shell = True)
+  print("... done")
   recording = False
   add_entry("DONE:"+formatted_date)
   add_video(formatted_date)
