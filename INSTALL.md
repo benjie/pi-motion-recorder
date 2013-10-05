@@ -35,6 +35,8 @@ Optionally connect the RPi GPIO18 and GND as shown below for the lighting:
 
 ![Connection diagram](lighting.png)
 
+Optionally set up the Pi as a wifi hotspot using HostAPD (left as an exercise for the reader, see: [hostapd.conf](hostapd.conf)).
+
 Set up your OS
 --------------
 
