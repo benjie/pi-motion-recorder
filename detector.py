@@ -49,7 +49,7 @@ wiringpi2.pinMode(MOTION_PIN, INPUT)
 wiringpi2.pullUpDnControl(MOTION_PIN, PUD_DOWN)
 wiringpi2.pinMode(LED_PIN, PWM_OUTPUT)
 
-brightness = 0
+brightness = BRIGHTNESS_MIN
 notifiedBrightness = 0
 motionDetected = 0
 notified = 0
