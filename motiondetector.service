@@ -2,8 +2,9 @@
 Description=Motion detector
 
 [Service]
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/opt/vc/bin
 Type=simple
-ExecStart=/home/pi/motiondetector/motiondetector.py
+ExecStart=/home/pi/motiondetector/detector.py
 Restart=always
 
 [Install]
