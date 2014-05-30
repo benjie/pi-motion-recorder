@@ -47,6 +47,12 @@ Append the following to your `/boot/config.txt` to enable the camera:
     # optionally:
     disable_camera_led=1
 
+If you won't be using a display then you'll also want to minimize memory usage:
+
+    gpu_mem=48
+    gpu_mem_256=48
+    gpu_mem_512=48
+
 For Arch, you might like to create a pi user and install a few nice things:
 
     # useradd -m pi -G wheel
